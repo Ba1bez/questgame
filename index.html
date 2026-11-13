@@ -1,0 +1,1205 @@
+<!DOCTYPE html>
+<html lang="ru" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quest_game — А что, если твой город — это игра? | @psuquestbot</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts: Unbounded, Russo One, Montserrat, Caveat (for hand-drawn accents) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@600;700&family=JetBrains+Mono:wght@500;700&family=Montserrat:ital,wght@0,400;0,600;0,700;0,800;0,900;1,800;1,900&family=Russo+One&display=swap" rel="stylesheet">
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        urban: {
+                            950: '#07060a',
+                            900: '#0d0b12',
+                            800: '#161320',
+                            700: '#231e32',
+                        },
+                        neon: {
+                            purple: '#9333ea',
+                            violet: '#a855f7',
+                            glow: '#c084fc',
+                            deep: '#6b21a8'
+                        }
+                    },
+                    fontFamily: {
+                        display: ['"Russo One"', 'sans-serif'],
+                        sans: ['"Montserrat"', 'sans-serif'],
+                        mono: ['"JetBrains Mono"', 'monospace'],
+                        hand: ['"Caveat"', 'cursive'],
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        /* Базовый урбан-фон с шумом и эффектом постера */
+        body {
+            background-color: #08070c;
+            color: #f4f4f6;
+            font-family: 'Montserrat', sans-serif;
+            overflow-x: hidden;
+        }
+
+        /* Текстура пленочного зерна и потертостей как на плакате */
+        .bg-noise {
+            background-image: 
+                radial-gradient(circle at 20% 15%, rgba(147, 51, 234, 0.16) 0%, transparent 40%),
+                radial-gradient(circle at 80% 75%, rgba(168, 85, 247, 0.14) 0%, transparent 45%),
+                url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.045'/%3E%3C/svg%3E");
+        }
+
+        /* Наклонный урбан-заголовок как на картинке */
+        .poster-title {
+            font-family: 'Russo One', sans-serif;
+            letter-spacing: 0.02em;
+            transform: skewX(-6deg);
+            text-transform: uppercase;
+        }
+
+        .poster-brand {
+            font-family: 'Russo One', sans-serif;
+            transform: skewX(-8deg);
+            display: inline-block;
+        }
+
+        /* Фиолетовый неоновый глоу */
+        .neon-text-glow {
+            text-shadow: 0 0 18px rgba(168, 85, 247, 0.65), 0 0 35px rgba(147, 51, 234, 0.35);
+        }
+
+        .neon-box-glow {
+            box-shadow: 0 0 25px rgba(147, 51, 234, 0.35), inset 0 0 15px rgba(168, 85, 247, 0.15);
+        }
+
+        /* Эффект мазка кистью / плашки "Добро пожаловать в Quest_game!" */
+        .brush-purple {
+            background: linear-gradient(104deg, #7e22ce 0%, #9333ea 55%, #a855f7 100%);
+            clip-path: polygon(2% 8%, 98% 2%, 100% 88%, 95% 96%, 1% 94%, 0% 20%);
+            transform: rotate(-1.5deg);
+        }
+
+        .brush-white {
+            background: #e5e5e5;
+            color: #09080d;
+            clip-path: polygon(1% 10%, 97% 3%, 100% 91%, 3% 98%);
+            transform: rotate(-2deg);
+        }
+
+        /* Эффект рваной бумаги для коллажей */
+        .torn-card {
+            position: relative;
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            background: linear-gradient(160deg, rgba(24, 21, 35, 0.92) 0%, rgba(12, 10, 18, 0.96) 100%);
+        }
+
+        .torn-photo-frame {
+            clip-path: polygon(
+                4% 1%, 22% 0%, 45% 2%, 72% 0%, 96% 3%, 100% 18%, 
+                98% 42%, 100% 73%, 95% 97%, 75% 100%, 42% 98%, 
+                15% 100%, 1% 95%, 3% 64%, 0% 31%
+            );
+        }
+
+        /* Овальная рисованная обводка со стрелкой/звездой */
+        .hand-oval {
+            border: 2px solid #9333ea;
+            border-radius: 55% 45% 52% 48% / 48% 54% 46% 52%;
+            box-shadow: 0 0 15px rgba(147, 51, 234, 0.35);
+        }
+
+        /* Стилизация скроллбара */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #08070c;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #4c1d95;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #9333ea;
+        }
+
+        /* Анимация парения для телефона и дудлов */
+        @keyframes floatSlow {
+            0%, 100% { transform: translateY(0px) rotate(-4deg); }
+            50% { transform: translateY(-10px) rotate(-2.5deg); }
+        }
+        .phone-float {
+            animation: floatSlow 6s ease-in-out infinite;
+        }
+
+        @keyframes pulseGlow {
+            0%, 100% { opacity: 0.75; filter: drop-shadow(0 0 6px #a855f7); }
+            50% { opacity: 1; filter: drop-shadow(0 0 14px #c084fc); }
+        }
+        .doodle-glow {
+            animation: pulseGlow 3.5s ease-in-out infinite;
+        }
+
+        /* Горизонтальные глитч-полосы как на постере */
+        .glitch-stripes {
+            background: repeating-linear-gradient(
+                0deg,
+                rgba(147, 51, 234, 0.06) 0px,
+                rgba(147, 51, 234, 0.06) 2px,
+                transparent 2px,
+                transparent 8px
+            );
+        }
+    </style>
+</head>
+<body class="bg-noise selection:bg-neon-purple selection:text-white">
+
+    <!-- Уведомление о копировании (вместо alert) -->
+    <div id="toast" class="fixed bottom-6 right-6 z-50 transform translate-y-24 opacity-0 transition-all duration-300 pointer-events-none bg-urban-800 border-2 border-neon-violet text-white px-5 py-3.5 rounded-2xl shadow-2xl flex items-center gap-3">
+        <span class="w-8 h-8 rounded-full bg-neon-purple/30 border border-neon-violet flex items-center justify-center text-neon-glow">✓</span>
+        <div>
+            <p id="toast-title" class="font-bold text-sm">Скопировано!</p>
+            <p id="toast-desc" class="text-xs text-gray-300">@psuquestbot сохранен в буфер обмена</p>
+        </div>
+    </div>
+
+    <!-- ВЕРХНЯЯ НАВИГАЦИЯ -->
+    <header class="sticky top-0 z-40 backdrop-blur-xl bg-urban-950/85 border-b border-white/10">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
+            <!-- Логотип с рисованной короной как на постере -->
+            <a href="#" class="flex items-center gap-2.5 group">
+                <div class="relative flex items-center">
+                    <!-- Корона дудл -->
+                    <svg class="w-6 h-6 text-white -mt-5 -mr-1 transform -rotate-12 group-hover:text-neon-glow transition-colors" viewBox="0 0 40 32" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M4 26L8 8L16 18L22 6L28 18L36 8L34 26H4Z"/>
+                    </svg>
+                    <span class="poster-brand text-2xl sm:text-3xl tracking-tight text-neon-violet group-hover:text-neon-glow transition-colors neon-text-glow">
+                        Quest_game
+                    </span>
+                </div>
+                <span class="hidden sm:inline-block text-[11px] font-mono uppercase tracking-widest px-2 py-0.5 rounded bg-white/10 text-gray-300 border border-white/10">
+                    @psuquestbot
+                </span>
+            </a>
+
+            <!-- Навигационные ссылки (десктоп) -->
+            <nav class="hidden lg:flex items-center gap-7 text-sm font-semibold text-gray-300">
+                <a href="#essence" class="hover:text-neon-glow transition-colors">Суть проекта</a>
+                <a href="#how-it-works" class="hover:text-neon-glow transition-colors">Как работает</a>
+                <a href="#walk-ways" class="hover:text-neon-glow transition-colors">5 способов</a>
+                <a href="#simulator" class="hover:text-neon-glow transition-colors">Демо-бот</a>
+                <a href="#team" class="hover:text-neon-glow transition-colors">Кто мы</a>
+            </nav>
+
+            <!-- Кнопки соцсетей / бота -->
+            <div class="flex items-center gap-2.5 sm:gap-3">
+                <a href="https://t.me/quest_gamenews" target="_blank" rel="noopener noreferrer"
+                   class="px-3.5 py-2.5 rounded-xl bg-white/5 hover:bg-white/10 border border-white/15 text-xs sm:text-sm font-bold text-white flex items-center gap-2 transition-all hover:border-neon-violet">
+                    <svg class="w-4 h-4 text-neon-glow shrink-0" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0a12 12 0 0 0-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.48.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z"/>
+                    </svg>
+                    <span class="hidden sm:inline">ТГК Новости</span>
+                    <span class="sm:hidden">ТГК</span>
+                </a>
+
+                <a href="https://t.me/psuquestbot" target="_blank" rel="noopener noreferrer"
+                   class="px-4 py-2.5 rounded-xl bg-neon-purple hover:bg-neon-violet text-xs sm:text-sm font-extrabold text-white flex items-center gap-2 shadow-lg shadow-neon-purple/40 transition-all transform hover:-translate-y-0.5">
+                    <span>В БОТА</span>
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M13 7l5 5m0 0l-5 5m5-5H6"/>
+                    </svg>
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <!-- БЛОК 1: HERO ("А ЧТО, ЕСЛИ ТВОЙ ГОРОД — ЭТО ИГРА?") -->
+    <section id="essence" class="relative pt-10 pb-20 lg:py-24 overflow-hidden border-b border-white/10">
+        <!-- Декоративные фоновые полосы и свечение -->
+        <div class="absolute inset-0 glitch-stripes pointer-events-none"></div>
+        <div class="absolute -top-24 -left-24 w-96 h-96 bg-neon-purple/20 rounded-full blur-3xl pointer-events-none"></div>
+        <div class="absolute top-1/3 right-0 w-96 h-96 bg-neon-violet/20 rounded-full blur-3xl pointer-events-none"></div>
+
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+
+                <!-- Левая колонка: Главный посыл плаката + Суть проекта -->
+                <div class="lg:col-span-7 space-y-7">
+                    <!-- Рисованная корона и плашка -->
+                    <div class="inline-flex items-center gap-3 px-4 py-1.5 rounded-full bg-urban-800 border border-neon-purple/50 text-xs sm:text-sm text-gray-200">
+                        <span class="w-2.5 h-2.5 rounded-full bg-neon-glow animate-ping"></span>
+                        <span class="font-mono">ГОРОДСКОЙ КВЕСТ-ПРОЕКТ В TELEGRAM</span>
+                    </div>
+
+                    <!-- Главный заголовок точь-в-точь как на 1-м кадре постера -->
+                    <div class="relative">
+                        <!-- Рисованная корона слева сверху -->
+                        <svg class="w-12 h-12 text-white/90 -mb-2 -ml-2 transform -rotate-12" viewBox="0 0 50 40" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M6 34L10 10L20 23L27 7L34 23L44 10L42 34H6Z"/>
+                        </svg>
+
+                        <h1 class="poster-title text-4xl sm:text-6xl xl:text-7xl leading-[1.05] text-white tracking-wide">
+                            А ЧТО, ЕСЛИ <br>
+                            ТВОЙ ГОРОД — <br>
+                            <span class="text-neon-violet neon-text-glow">ЭТО ИГРА?</span>
+                        </h1>
+
+                        <!-- Рисованные знаки вопроса ??? как на постере -->
+                        <div class="hidden sm:flex items-center gap-2 absolute -right-2 bottom-2 transform rotate-6 font-hand text-5xl text-white/85 select-none">
+                            <span>?</span><span class="text-6xl -mt-4 text-neon-glow">?</span><span>?</span>
+                        </div>
+                    </div>
+
+                    <!-- Овальная рисованная обводка со звездочкой -->
+                    <div class="inline-block relative pt-2">
+                        <div class="hand-oval px-6 py-3.5 bg-urban-900/90 inline-block transform -rotate-1">
+                            <p class="text-base sm:text-lg font-medium text-white">
+                                <span class="text-neon-glow font-bold">Quest_game</span> — это возможность увидеть город по-новому.
+                            </p>
+                        </div>
+                        <!-- Рисованная 5-конечная звезда как в углу овала -->
+                        <svg class="w-9 h-9 text-white absolute -bottom-3 -right-5 transform rotate-12" viewBox="0 0 40 40" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round">
+                            <path d="M20 3L25 15L38 15L27 23L31 36L20 28L9 36L13 23L2 15L15 15Z"/>
+                        </svg>
+                    </div>
+
+                    <!-- Подробное раскрытие сути проекта -->
+                    <p class="text-gray-300 text-base sm:text-lg leading-relaxed max-w-2xl">
+                        Мы объединили цифровой мир Telegram и улицы реального города. В нашем боте 
+                        <a href="https://t.me/psuquestbot" target="_blank" class="text-neon-glow font-bold underline decoration-neon-purple/60 hover:text-white">@psuquestbot</a> 
+                        ты получаешь живые задания и квесты с <b>ограниченным числом мест</b>, исследуешь необычные локации, отправляешь фото- и видеоотчёты на проверку админам, копишь баллы и соревнуешься в общей <b>таблице лидеров</b>!
+                    </p>
+
+                    <!-- Главные кнопки призыва к действию -->
+                    <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-4 pt-2">
+                        <a href="https://t.me/psuquestbot" target="_blank" rel="noopener noreferrer"
+                           class="group relative px-7 py-4 rounded-2xl bg-neon-purple hover:bg-neon-violet text-white font-black text-base sm:text-lg tracking-wide flex items-center justify-center gap-3 neon-box-glow transition-all transform hover:-translate-y-1">
+                            <svg class="w-6 h-6 text-white group-hover:rotate-12 transition-transform" fill="currentColor" viewBox="0 0 24 24">
+                                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm4.64 6.8c-.15 1.58-.8 5.42-1.13 7.19-.14.75-.42 1-.68 1.03-.58.05-1.02-.38-1.58-.75-.88-.58-1.38-.94-2.23-1.5-.99-.65-.35-1.01.22-1.59.15-.15 2.71-2.48 2.76-2.69a.2.2 0 00-.05-.18c-.06-.05-.14-.03-.21-.02-.09.02-1.49.95-4.22 2.79-.4.27-.76.41-1.08.4-.36-.01-1.04-.2-1.55-.37-.63-.2-1.12-.31-1.08-.66.02-.18.27-.36.74-.55 2.92-1.27 4.86-2.11 5.83-2.51 2.78-1.16 3.35-1.36 3.73-1.36.08 0 .27.02.39.12.1.08.13.19.14.27-.01.06.01.24 0 .38z"/>
+                            </svg>
+                            <span>НАЧАТЬ ИГРУ В @PSUQUESTBOT</span>
+                        </a>
+
+                        <a href="https://t.me/quest_gamenews" target="_blank" rel="noopener noreferrer"
+                           class="px-6 py-4 rounded-2xl bg-urban-800/90 hover:bg-urban-700 border-2 border-white/20 hover:border-neon-violet text-white font-bold text-base flex items-center justify-center gap-3 transition-all">
+                            <span>📢 Наш ТГК: @quest_gamenews</span>
+                        </a>
+                    </div>
+
+                    <!-- Быстрое копирование ссылок -->
+                    <div class="flex flex-wrap items-center gap-3 pt-1 text-xs text-gray-400">
+                        <span>Быстрое копирование:</span>
+                        <button onclick="copyText('@psuquestbot', 'Юзернейм бота @psuquestbot скопирован!')" 
+                                class="font-mono px-3 py-1.5 rounded-lg bg-white/5 hover:bg-neon-purple/20 border border-white/10 hover:border-neon-violet text-gray-200 transition-colors flex items-center gap-1.5">
+                            <span>📋 @psuquestbot</span>
+                        </button>
+                        <button onclick="copyText('https://t.me/quest_gamenews', 'Ссылка на ТГ-канал скопирована!')" 
+                                class="font-mono px-3 py-1.5 rounded-lg bg-white/5 hover:bg-neon-purple/20 border border-white/10 hover:border-neon-violet text-gray-200 transition-colors flex items-center gap-1.5">
+                            <span>📋 t.me/quest_gamenews</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Правая колонка: Стилизованный коллаж со смартфоном из постера -->
+                <div class="lg:col-span-5 relative flex justify-center">
+                    <!-- Фоновый силуэт ночного города в рваной рамке -->
+                    <div class="absolute inset-0 bg-gradient-to-tr from-neon-purple/20 via-urban-800/50 to-transparent rounded-3xl transform rotate-3 border border-white/10"></div>
+
+                    <!-- Рисованная изогнутая стрелка сверху к телефону -->
+                    <svg class="w-16 h-16 text-white absolute -top-8 right-8 z-20 hidden sm:block" viewBox="0 0 80 80" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
+                        <path d="M10 15 C 45 10, 65 30, 58 68" />
+                        <path d="M48 58 L 58 70 L 68 56" />
+                    </svg>
+
+                    <!-- Макет смартфона с экраном Quest_game -->
+                    <div class="phone-float relative z-10 w-[300px] sm:w-[330px] rounded-[42px] bg-[#07060b] p-3.5 border-[3px] border-gray-700/80 shadow-[0_0_50px_rgba(147,51,234,0.35)]">
+                        <!-- Челка айфона -->
+                        <div class="w-32 h-5 bg-black rounded-b-2xl mx-auto mb-2 flex items-center justify-center gap-2">
+                            <span class="w-8 h-1 bg-gray-800 rounded-full"></span>
+                            <span class="w-2 h-2 bg-gray-800 rounded-full"></span>
+                        </div>
+
+                        <!-- Внутренний экран телефона (переключаемый между 2 экранами с постера!) -->
+                        <div class="rounded-[32px] bg-gradient-to-b from-[#13111c] via-[#0c0a12] to-[#170f29] border border-white/10 p-6 min-h-[490px] flex flex-col justify-between relative overflow-hidden">
+                            <!-- Декоративная звезда в углу экрана -->
+                            <div class="flex items-center justify-between text-xs text-gray-400">
+                                <span class="flex items-center gap-1 text-white font-semibold">
+                                    <svg class="w-4 h-4 text-neon-glow" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2L14.5 9.5L22 12L14.5 14.5L12 22L9.5 14.5L2 12L9.5 9.5L12 2Z"/></svg>
+                                    Quest_game
+                                </span>
+                                <span class="font-mono text-[11px] text-neon-glow">@psuquestbot</span>
+                            </div>
+
+                            <!-- Центральная часть экрана -->
+                            <div id="phone-screen-content" class="my-auto text-center space-y-5 py-4">
+                                <!-- Иконка Telegram + Неоновый бумажный самолетик -->
+                                <div class="relative w-24 h-24 mx-auto flex items-center justify-center">
+                                    <div class="absolute inset-0 rounded-full bg-neon-purple/30 animate-pulse blur-md"></div>
+                                    <div class="relative w-20 h-20 rounded-full bg-gradient-to-tr from-neon-purple to-sky-500 flex items-center justify-center shadow-lg">
+                                        <svg class="w-10 h-10 text-white -ml-1" fill="currentColor" viewBox="0 0 24 24">
+                                            <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/>
+                                        </svg>
+                                    </div>
+                                </div>
+
+                                <div>
+                                    <h3 class="poster-brand text-3xl text-white tracking-wide">Quest_game</h3>
+                                    <p class="text-sm text-gray-300 mt-2 leading-snug">
+                                        Telegram-бот с квестами<br>в реальном мире
+                                    </p>
+                                </div>
+
+                                <div class="p-3.5 rounded-2xl bg-white/5 border border-neon-purple/40 text-left space-y-1.5">
+                                    <div class="flex items-center justify-between text-xs">
+                                        <span class="text-neon-glow font-bold">🔥 Активный квест #1</span>
+                                        <span class="font-mono bg-neon-purple/30 text-white px-2 py-0.5 rounded">+50 б.</span>
+                                    </div>
+                                    <p class="text-xs text-gray-300">Найди старинную деталь фасада в центре и отправь фото-отчет!</p>
+                                    <div class="text-[11px] text-gray-400 flex justify-between pt-1">
+                                        <span>👥 Слоты: 3/5 чел.</span>
+                                        <span class="text-emerald-400">● Доступно</span>
+                                    </div>
+                                </div>
+
+                                <p class="text-xs font-mono text-gray-400 italic">
+                                    «Реальность не найдена.<br>Приключение началось.»
+                                </p>
+                            </div>
+
+                            <!-- Кнопка внутри экрана смартфона -->
+                            <div class="space-y-2.5">
+                                <a href="https://t.me/psuquestbot" target="_blank" rel="noopener noreferrer"
+                                   class="block w-full py-3.5 rounded-2xl bg-neon-purple hover:bg-neon-violet text-center font-extrabold text-white text-sm tracking-wide shadow-lg shadow-neon-purple/50 transition-all">
+                                    Начать в @psuquestbot
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Неоновый фиолетовый смайлик справа снизу как на 5-м кадре постера -->
+                    <svg class="w-16 h-16 text-neon-violet doodle-glow absolute -bottom-6 right-4 z-20" viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round">
+                        <path d="M26 18 L24 30" />
+                        <path d="M40 18 L38 30" />
+                        <path d="M14 36 C 18 52, 46 52, 52 34" />
+                        <path d="M11 35 L17 33" />
+                        <path d="M49 32 L55 36" />
+                    </svg>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <!-- БЛОК 2: "КАК РАБОТАЕТ Quest_game? ПРОСТО:" (В СТИЛЕ 2-ГО КАДРА ПОСТЕРА + МЕХАНИКА БОТА) -->
+    <section id="how-it-works" class="py-20 lg:py-28 relative border-b border-white/10">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+
+            <!-- Заголовок секции -->
+            <div class="text-center max-w-3xl mx-auto mb-14">
+                <h2 class="poster-title text-3xl sm:text-5xl lg:text-6xl text-white leading-tight">
+                    КАК РАБОТАЕТ <br>
+                    <span class="text-neon-violet neon-text-glow">Quest_game?</span>
+                </h2>
+                <!-- Белая рваная плашка "Просто:" как на постере -->
+                <div class="mt-5 inline-block brush-white px-7 py-2 shadow-lg">
+                    <span class="font-extrabold text-xl sm:text-2xl tracking-tight">Просто:</span>
+                </div>
+            </div>
+
+            <!-- 5 шагов с постера + подробности работы нашей системы отчетов -->
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-10 items-center">
+                
+                <!-- Левая часть: 5 фирменных шагов в овальных капсулах с неоновыми номерами -->
+                <div class="lg:col-span-7 space-y-4">
+                    
+                    <!-- Шаг 1 -->
+                    <div class="group torn-card rounded-2xl p-4 sm:p-5 flex items-start sm:items-center gap-4 hover:border-neon-violet transition-all">
+                        <div class="w-12 h-12 rounded-full bg-neon-purple/25 border-2 border-neon-violet flex items-center justify-center shrink-0 font-display text-xl text-white shadow-[0_0_15px_rgba(168,85,247,0.5)] group-hover:scale-110 transition-transform">
+                            1
+                        </div>
+                        <div class="flex-1">
+                            <h3 class="text-lg sm:text-xl font-extrabold text-white">
+                                Заходишь в Telegram-бот <a href="https://t.me/psuquestbot" target="_blank" class="text-neon-glow underline">@psuquestbot</a>
+                            </h3>
+                            <p class="text-sm text-gray-300 mt-1">
+                                Нажимаешь <code class="text-neon-glow font-mono">/start</code> — бот автоматически создаёт твой профиль игрока, открывает доступ к заданиям, статистике и таблице лидеров.
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- Шаг 2 -->
+                    <div class="group torn-card rounded-2xl p-4 sm:p-5 flex items-start sm:items-center gap-4 hover:border-neon-violet transition-all">
+                        <div class="w-12 h-12 rounded-full bg-neon-purple/25 border-2 border-neon-violet flex items-center justify-center shrink-0 font-display text-xl text-white shadow-[0_0_15px_rgba(168,85,247,0.5)] group-hover:scale-110 transition-transform">
+                            2
+                        </div>
+                        <div class="flex-1">
+                            <h3 class="text-lg sm:text-xl font-extrabold text-white">
+                                Выбираешь квест (Охота за слотами!)
+                            </h3>
+                            <p class="text-sm text-gray-300 mt-1">
+                                У каждого задания фиксированная награда (например, <span class="text-neon-glow font-bold">+50 баллов</span>) и лимит выполнений (<span class="font-mono text-xs bg-white/10 px-1.5 py-0.5 rounded">0/5 чел.</span>). Успей занять место первым!
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- Шаг 3 -->
+                    <div class="group torn-card rounded-2xl p-4 sm:p-5 flex items-start sm:items-center gap-4 hover:border-neon-violet transition-all">
+                        <div class="w-12 h-12 rounded-full bg-neon-purple/25 border-2 border-neon-violet flex items-center justify-center shrink-0 font-display text-xl text-white shadow-[0_0_15px_rgba(168,85,247,0.5)] group-hover:scale-110 transition-transform">
+                            3
+                        </div>
+                        <div class="flex-1">
+                            <h3 class="text-lg sm:text-xl font-extrabold text-white">
+                                Получаешь задание и условие
+                            </h3>
+                            <p class="text-sm text-gray-300 mt-1">
+                                Разгадываешь загадку, находишь нужную точку на карте города или кампуса, выполняешь челлендж с друзьями.
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- Шаг 4 -->
+                    <div class="group torn-card rounded-2xl p-4 sm:p-5 flex items-start sm:items-center gap-4 hover:border-neon-violet transition-all">
+                        <div class="w-12 h-12 rounded-full bg-neon-purple/25 border-2 border-neon-violet flex items-center justify-center shrink-0 font-display text-xl text-white shadow-[0_0_15px_rgba(168,85,247,0.5)] group-hover:scale-110 transition-transform">
+                            4
+                        </div>
+                        <div class="flex-1">
+                            <h3 class="text-lg sm:text-xl font-extrabold text-white">
+                                Отправляешься исследовать город и шлёшь отчёт
+                            </h3>
+                            <p class="text-sm text-gray-300 mt-1">
+                                Прямо в бота прикрепляешь <b>фото, видео, документ, голосовое или текст</b> с решением. Админы видят твоё вложение мгновенно в системе проверки!
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- Шаг 5 -->
+                    <div class="group torn-card rounded-2xl p-4 sm:p-5 flex items-start sm:items-center gap-4 hover:border-neon-violet transition-all">
+                        <div class="w-12 h-12 rounded-full bg-neon-purple/25 border-2 border-neon-violet flex items-center justify-center shrink-0 font-display text-xl text-white shadow-[0_0_15px_rgba(168,85,247,0.5)] group-hover:scale-110 transition-transform">
+                            5
+                        </div>
+                        <div class="flex-1">
+                            <h3 class="text-lg sm:text-xl font-extrabold text-white">
+                                Выполняешь задания и продвигаешься в ТОП
+                            </h3>
+                            <p class="text-sm text-gray-300 mt-1">
+                                После одобрения отчёта тебе прилетает уведомление и баллы на баланс. Предлагай свои идеи квестов через раздел «✉️ Связь с админами»!
+                            </p>
+                        </div>
+                    </div>
+
+                </div>
+
+                <!-- Правая часть: Наглядная схема механики бота и уведомлений -->
+                <div class="lg:col-span-5">
+                    <div class="torn-card rounded-3xl p-6 sm:p-8 border-2 border-neon-purple/40 relative overflow-hidden">
+                        <div class="absolute -right-10 -top-10 w-40 h-40 bg-neon-purple/20 rounded-full blur-2xl"></div>
+
+                        <div class="flex items-center justify-between mb-6">
+                            <span class="text-xs font-mono uppercase tracking-wider px-3 py-1 rounded-full bg-neon-purple/30 border border-neon-violet text-neon-glow">
+                                Внутри системы @psuquestbot
+                            </span>
+                            <span class="text-xs text-gray-400 font-mono">Live-механика</span>
+                        </div>
+
+                        <!-- Имитация сообщений из бота -->
+                        <div class="space-y-4 font-sans text-sm">
+                            <!-- Пуш о новом задании -->
+                            <div class="p-4 rounded-2xl bg-urban-950/90 border border-white/10 space-y-2">
+                                <div class="flex items-center justify-between text-xs text-neon-glow font-bold">
+                                    <span>🔥 Новое задание #7: Код Города</span>
+                                    <span class="font-mono">+75 баллов</span>
+                                </div>
+                                <p class="text-xs text-gray-300 leading-relaxed">
+                                    Найди граффити с короной во внутреннем дворике и пришли селфи или фото детали на фоне!
+                                </p>
+                                <div class="flex items-center justify-between text-[11px] text-gray-400 pt-1 border-t border-white/5">
+                                    <span>👥 Лимит выполнений: 5 чел.</span>
+                                    <span class="text-amber-400">⏳ Ждут проверки: 1</span>
+                                </div>
+                            </div>
+
+                            <!-- Стрелка вниз -->
+                            <div class="flex justify-center text-neon-glow">
+                                <svg class="w-6 h-6 animate-bounce" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M19 14l-7 7m0 0l-7-7m7 7V3"/>
+                                </svg>
+                            </div>
+
+                            <!-- Уведомление о принятии отчета -->
+                            <div class="p-4 rounded-2xl bg-emerald-950/30 border border-emerald-500/40 space-y-1.5">
+                                <p class="text-xs font-bold text-emerald-300">
+                                    🎉 Ваш отчет по заданию «Код Города» принят администратором!
+                                </p>
+                                <p class="text-xs text-gray-200">
+                                    💎 Начислено: <code class="font-mono text-emerald-300 font-bold">+75 баллов</code>. Твое место в рейтинге: <b>#3 🥉</b>
+                                </p>
+                            </div>
+                        </div>
+
+                        <div class="mt-6 pt-5 border-t border-white/10 flex flex-col sm:flex-row gap-3">
+                            <a href="https://t.me/psuquestbot" target="_blank" rel="noopener noreferrer"
+                               class="flex-1 py-3 px-4 rounded-xl bg-neon-purple hover:bg-neon-violet text-white font-bold text-center text-sm transition-all">
+                                Открыть @psuquestbot
+                            </a>
+                            <a href="https://t.me/quest_gamenews" target="_blank" rel="noopener noreferrer"
+                               class="py-3 px-4 rounded-xl bg-white/5 hover:bg-white/10 border border-white/15 text-gray-200 font-semibold text-center text-sm transition-all">
+                                Анонсы в ТГК
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <!-- БЛОК 3: "5 СПОСОБОВ РАЗНООБРАЗИТЬ ПРОГУЛКУ" (ИНТЕРАКТИВНЫЙ ЧЕК-ЛИСТ С 3-ГО КАДРА ПОСТЕРА) -->
+    <section id="walk-ways" class="py-20 lg:py-28 relative border-b border-white/10">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+
+                <!-- Левая часть: Заголовок и интерактивные чекбоксы как на постере -->
+                <div class="lg:col-span-7 space-y-6">
+                    <div class="inline-flex items-center gap-2 text-xs font-mono uppercase tracking-widest text-neon-glow bg-neon-purple/15 border border-neon-purple/40 px-3.5 py-1.5 rounded-full">
+                        <span>⚡ Интерактивный чек-лист игрока</span>
+                    </div>
+
+                    <h2 class="poster-title text-3xl sm:text-5xl text-white leading-tight">
+                        5 СПОСОБОВ <br>
+                        РАЗНООБРАЗИТЬ <br>
+                        <span class="text-neon-violet neon-text-glow">ПРОГУЛКУ</span>
+                    </h2>
+
+                    <p class="text-sm sm:text-base text-gray-300">
+                        Отметь пункты, которые готов выполнить сегодня, чтобы зарядить свой прогресс перед первым квестом в <a href="https://t.me/psuquestbot" target="_blank" class="text-neon-glow font-bold underline">@psuquestbot</a>:
+                    </p>
+
+                    <!-- Шкала прогресса -->
+                    <div class="bg-urban-800 p-4 rounded-2xl border border-white/10">
+                        <div class="flex justify-between items-center text-xs sm:text-sm font-bold mb-2">
+                            <span class="text-gray-300">Твой настрой на приключение:</span>
+                            <span id="checklist-score" class="font-mono text-neon-glow">2 / 5 выполнено (+40 XP)</span>
+                        </div>
+                        <div class="w-full h-3 bg-urban-950 rounded-full overflow-hidden p-0.5 border border-white/10">
+                            <div id="checklist-bar" class="h-full bg-gradient-to-r from-neon-purple to-neon-glow rounded-full transition-all duration-500" style="width: 40%"></div>
+                        </div>
+                    </div>
+
+                    <!-- Список из 5 пунктов точь-в-точь с постера -->
+                    <div class="space-y-3.5" id="walk-checklist">
+                        <!-- Пункт 1 -->
+                        <label class="walk-item cursor-pointer torn-card rounded-2xl p-4 flex items-center gap-4 hover:border-neon-violet transition-all select-none">
+                            <input type="checkbox" checked class="sr-only" onchange="updateChecklist()">
+                            <span class="check-circle w-8 h-8 rounded-full border-2 border-neon-violet bg-neon-purple/30 flex items-center justify-center text-white shrink-0 transition-all">
+                                ✓
+                            </span>
+                            <span class="text-base sm:text-lg font-medium text-white">
+                                Найди место, в котором никогда раньше не был.
+                            </span>
+                        </label>
+
+                        <!-- Пункт 2 -->
+                        <label class="walk-item cursor-pointer torn-card rounded-2xl p-4 flex items-center gap-4 hover:border-neon-violet transition-all select-none">
+                            <input type="checkbox" checked class="sr-only" onchange="updateChecklist()">
+                            <span class="check-circle w-8 h-8 rounded-full border-2 border-neon-violet bg-neon-purple/30 flex items-center justify-center text-white shrink-0 transition-all">
+                                ✓
+                            </span>
+                            <span class="text-base sm:text-lg font-medium text-white">
+                                Сделай фотографию необычной детали города.
+                            </span>
+                        </label>
+
+                        <!-- Пункт 3 -->
+                        <label class="walk-item cursor-pointer torn-card rounded-2xl p-4 flex items-center gap-4 hover:border-neon-violet transition-all select-none">
+                            <input type="checkbox" class="sr-only" onchange="updateChecklist()">
+                            <span class="check-circle w-8 h-8 rounded-full border-2 border-gray-500 bg-transparent flex items-center justify-center text-transparent shrink-0 transition-all">
+                                ✓
+                            </span>
+                            <span class="text-base sm:text-lg font-medium text-gray-200">
+                                Попробуй разгадать загадку.
+                            </span>
+                        </label>
+
+                        <!-- Пункт 4 -->
+                        <label class="walk-item cursor-pointer torn-card rounded-2xl p-4 flex items-center gap-4 hover:border-neon-violet transition-all select-none">
+                            <input type="checkbox" class="sr-only" onchange="updateChecklist()">
+                            <span class="check-circle w-8 h-8 rounded-full border-2 border-gray-500 bg-transparent flex items-center justify-center text-transparent shrink-0 transition-all">
+                                ✓
+                            </span>
+                            <span class="text-base sm:text-lg font-medium text-gray-200">
+                                Устрой соревнование с друзьями.
+                            </span>
+                        </label>
+
+                        <!-- Пункт 5 -->
+                        <label class="walk-item cursor-pointer torn-card rounded-2xl p-4 flex items-center gap-4 hover:border-neon-violet transition-all select-none">
+                            <input type="checkbox" class="sr-only" onchange="updateChecklist()">
+                            <span class="check-circle w-8 h-8 rounded-full border-2 border-gray-500 bg-transparent flex items-center justify-center text-transparent shrink-0 transition-all">
+                                ✓
+                            </span>
+                            <span class="text-base sm:text-lg font-medium text-gray-200">
+                                Выбери случайный маршрут.
+                            </span>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Правая часть: Атмосферный урбан-коллаж с гео-меткой и овальным призывом "А теперь поймай свой первый квест!" -->
+                <div class="lg:col-span-5 relative flex flex-col items-center">
+                    <!-- Рисованный большой пин локации как на 3-м кадре постера -->
+                    <svg class="w-16 h-20 text-white absolute -top-6 left-4 z-20 drop-shadow-[0_0_12px_rgba(168,85,247,0.8)] transform -rotate-12" viewBox="0 0 48 64" fill="none" stroke="currentColor" stroke-width="2.8">
+                        <path d="M24 4C13 4 4 13 4 24C4 39 24 58 24 58C24 58 44 39 44 24C44 13 35 4 24 4Z"/>
+                        <circle cx="24" cy="24" r="8"/>
+                    </svg>
+
+                    <!-- Рваный край бумажного коллажа с монохромным готическим/городским шпилем -->
+                    <div class="relative w-full max-w-md bg-white/90 p-2.5 torn-photo-frame shadow-2xl transform rotate-1">
+                        <div class="torn-photo-frame bg-urban-950 relative overflow-hidden h-[380px] flex flex-col justify-end p-6">
+                            <!-- Стилизованный векторный силуэт ночной башни и облаков -->
+                            <svg class="absolute inset-0 w-full h-full object-cover opacity-65" viewBox="0 0 400 500" preserveAspectRatio="xMidYMid slice">
+                                <defs>
+                                    <linearGradient id="nightSky" x1="0" y1="0" x2="0" y2="1">
+                                        <stop offset="0%" stop-color="#1e1b2e"/>
+                                        <stop offset="60%" stop-color="#0d0b14"/>
+                                        <stop offset="100%" stop-color="#050408"/>
+                                    </linearGradient>
+                                </defs>
+                                <rect width="400" height="500" fill="url(#nightSky)"/>
+                                <!-- Луна / свечение -->
+                                <circle cx="310" cy="110" r="45" fill="#a855f7" opacity="0.25"/>
+                                <!-- Силуэт шпиля и старого здания (как на 3-м постере) -->
+                                <polygon points="200,30 185,150 215,150" fill="#181522"/>
+                                <rect x="170" y="150" width="60" height="90" fill="#14111d"/>
+                                <polygon points="140,240 260,240 280,500 120,500" fill="#0c0a12"/>
+                                <rect x="60" y="310" width="280" height="190" fill="#09080e"/>
+                                <!-- Светящиеся окна -->
+                                <rect x="193" y="175" width="14" height="28" rx="7" fill="#c084fc" opacity="0.7"/>
+                                <rect x="155" y="280" width="12" height="22" fill="#a855f7" opacity="0.5"/>
+                                <rect x="235" y="280" width="12" height="22" fill="#a855f7" opacity="0.5"/>
+                                <rect x="100" y="350" width="14" height="24" fill="#e9d5ff" opacity="0.4"/>
+                                <rect x="280" y="360" width="14" height="24" fill="#a855f7" opacity="0.6"/>
+                            </svg>
+
+                            <div class="relative z-10 bg-urban-950/85 backdrop-blur-md p-4 rounded-2xl border border-white/15">
+                                <p class="font-mono text-xs text-neon-glow uppercase">📍 Локации твоего города</p>
+                                <p class="text-sm text-gray-200 mt-1">
+                                    Каждая улица хранит загадки, на которые прохожие не обращают внимания. Время увидеть их!
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Овальный бейдж снизу справа: "А теперь поймай свой первый квест!" -->
+                    <a href="https://t.me/psuquestbot" target="_blank" rel="noopener noreferrer"
+                       class="mt-6 hand-oval px-8 py-4 bg-urban-900 hover:bg-neon-purple/30 transition-all transform -rotate-2 text-center group">
+                        <span class="block text-base sm:text-lg font-extrabold text-white group-hover:text-neon-glow">
+                            А теперь поймай свой первый квест! →
+                        </span>
+                    </a>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <!-- БЛОК 4: ИНТЕРАКТИВНЫЙ СИМУЛЯТОР БОТА @PSUQUESTBOT ПРЯМО НА САЙТЕ -->
+    <section id="simulator" class="py-20 lg:py-28 relative border-b border-white/10 bg-urban-900/40">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center max-w-3xl mx-auto mb-12">
+                <span class="text-xs font-mono uppercase tracking-widest px-3.5 py-1.5 rounded-full bg-neon-purple/20 border border-neon-violet text-neon-glow">
+                    🎮 Интерактивное превью @psuquestbot
+                </span>
+                <h2 class="poster-title text-3xl sm:text-5xl text-white mt-4">
+                    ПОПРОБУЙ ИНТЕРФЕЙС <span class="text-neon-violet neon-text-glow">БОТА</span> В ДЕЙСТВИИ
+                </h2>
+                <p class="text-gray-300 text-sm sm:text-base mt-3">
+                    Пощелкай по разделам меню нашего бота ниже, чтобы узнать, как устроены квесты, рейтинг и отправка отчетов:
+                </p>
+            </div>
+
+            <!-- Интерактивный терминал бота -->
+            <div class="max-w-4xl mx-auto torn-card rounded-3xl border-2 border-white/15 overflow-hidden shadow-2xl">
+                <!-- Верхняя шапка окна Telegram -->
+                <div class="bg-urban-950 px-6 py-4 border-b border-white/10 flex items-center justify-between">
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-full bg-gradient-to-tr from-neon-purple to-indigo-500 flex items-center justify-center font-display text-white">
+                            Q
+                        </div>
+                        <div>
+                            <div class="flex items-center gap-2">
+                                <h3 class="font-bold text-white text-sm sm:text-base">Quest_game Bot</h3>
+                                <span class="text-[11px] font-mono text-neon-glow bg-neon-purple/20 px-2 py-0.5 rounded">@psuquestbot</span>
+                            </div>
+                            <p class="text-xs text-emerald-400">● бот в сети (онлайн)</p>
+                        </div>
+                    </div>
+                    <a href="https://t.me/psuquestbot" target="_blank" rel="noopener noreferrer"
+                       class="px-4 py-2 rounded-xl bg-neon-purple hover:bg-neon-violet text-xs font-bold text-white transition-all">
+                        Открыть в Telegram ↗
+                    </a>
+                </div>
+
+                <!-- Экран диалога -->
+                <div class="p-6 sm:p-8 bg-urban-900/70 min-h-[320px] flex flex-col justify-between space-y-6">
+                    <div id="sim-screen" class="space-y-4">
+                        <!-- По умолчанию показывается раздел Заданий -->
+                    </div>
+
+                    <!-- Нижняя клавиатура ReplyKeyboardMarkup из student_bot.py -->
+                    <div class="pt-4 border-t border-white/10">
+                        <p class="text-[11px] font-mono text-gray-400 mb-2.5 uppercase tracking-wider">
+                            👇 Нажми на кнопку меню бота для предпросмотра:
+                        </p>
+                        <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
+                            <button onclick="renderSimTab('quests')" id="tab-quests"
+                                    class="sim-tab-btn py-3 px-3 rounded-xl font-bold text-xs sm:text-sm border transition-all bg-neon-purple text-white border-neon-glow">
+                                📚 Задания и квесты
+                            </button>
+                            <button onclick="renderSimTab('leaders')" id="tab-leaders"
+                                    class="sim-tab-btn py-3 px-3 rounded-xl font-bold text-xs sm:text-sm border transition-all bg-urban-800 text-gray-200 border-white/10 hover:border-neon-violet">
+                                🏆 Таблица лидеров
+                            </button>
+                            <button onclick="renderSimTab('stats')" id="tab-stats"
+                                    class="sim-tab-btn py-3 px-3 rounded-xl font-bold text-xs sm:text-sm border transition-all bg-urban-800 text-gray-200 border-white/10 hover:border-neon-violet">
+                                📊 Моя статистика
+                            </button>
+                            <button onclick="renderSimTab('support')" id="tab-support"
+                                    class="sim-tab-btn py-3 px-3 rounded-xl font-bold text-xs sm:text-sm border transition-all bg-urban-800 text-gray-200 border-white/10 hover:border-neon-violet">
+                                ✉️ Связь с админами
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- БЛОК 5: "ЧТО ТАКОЕ Quest_game И КТО ЗА ЭТИМ СТОИТ?" (В СТИЛЕ 4-ГО КАДРА ПОСТЕРА) -->
+    <section id="team" class="py-20 lg:py-28 relative border-b border-white/10">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+
+                <!-- Левая колонка: Текст с постера + фиолетовый мазок кистью -->
+                <div class="lg:col-span-6 space-y-6">
+                    <h2 class="poster-title text-3xl sm:text-5xl text-white leading-tight">
+                        ЧТО ТАКОЕ <span class="text-neon-violet neon-text-glow">Quest_game</span> <br>
+                        И КТО ЗА ЭТИМ СТОИТ?
+                    </h2>
+
+                    <div class="space-y-4 text-base sm:text-lg text-gray-200 leading-relaxed">
+                        <p>
+                            <span class="text-neon-glow font-extrabold">Мы</span> — команда, которая решила объединить технологии и реальные приключения.
+                        </p>
+                        <p>
+                            Создаём квесты, исследуем город и делаем твои прогулки интереснее. Каждый маршрут, загадка и точка на карте проверены нами лично, чтобы подарить тебе настоящий азарт первооткрывателя.
+                        </p>
+                    </div>
+
+                    <!-- Фирменная фиолетовая плашка-мазок "Добро пожаловать в Quest_game!" + рисованная стрелка -->
+                    <div class="pt-3 flex items-center gap-4">
+                        <div class="brush-purple px-7 py-3.5 inline-block shadow-xl">
+                            <span class="font-extrabold text-lg sm:text-xl text-white tracking-wide">
+                                Добро пожаловать в Quest_game!
+                            </span>
+                        </div>
+                        <svg class="w-12 h-12 text-white shrink-0 hidden sm:block" viewBox="0 0 60 50" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
+                            <path d="M5 40 C 25 42, 40 30, 50 12" />
+                            <path d="M38 14 L 51 11 L 52 24" />
+                        </svg>
+                    </div>
+                </div>
+
+                <!-- Правая колонка: Коллаж в рваной рамке с командой на крыше на фоне ночного города (4-й кадр постера) -->
+                <div class="lg:col-span-6">
+                    <div class="bg-white/90 p-2.5 torn-photo-frame shadow-2xl transform -rotate-1">
+                        <div class="torn-photo-frame bg-urban-950 relative h-[360px] sm:h-[400px] overflow-hidden flex flex-col justify-between p-6 sm:p-8">
+                            <!-- Стилизованный урбан-арт: 4 силуэта на крыше перед ночным городом -->
+                            <svg class="absolute inset-0 w-full h-full object-cover" viewBox="0 0 600 400" preserveAspectRatio="xMidYMid slice">
+                                <defs>
+                                    <linearGradient id="rooftopGrad" x1="0" y1="0" x2="0" y2="1">
+                                        <stop offset="0%" stop-color="#1d1829"/>
+                                        <stop offset="65%" stop-color="#2c243d"/>
+                                        <stop offset="100%" stop-color="#09070e"/>
+                                    </linearGradient>
+                                </defs>
+                                <rect width="600" height="400" fill="url(#rooftopGrad)"/>
+                                <!-- Огни небоскребов на заднем плане -->
+                                <g fill="#120f1a">
+                                    <rect x="30" y="160" width="55" height="200"/>
+                                    <rect x="100" y="190" width="70" height="170"/>
+                                    <rect x="200" y="140" width="60" height="220"/>
+                                    <rect x="440" y="150" width="65" height="210"/>
+                                    <rect x="520" y="180" width="60" height="180"/>
+                                </g>
+                                <!-- Светящиеся точки окон -->
+                                <g fill="#c084fc" opacity="0.45">
+                                    <rect x="42" y="180" width="6" height="6"/><rect x="56" y="195" width="6" height="6"/><rect x="42" y="210" width="6" height="6"/>
+                                    <rect x="215" y="165" width="8" height="6"/><rect x="235" y="185" width="8" height="6"/>
+                                    <rect x="460" y="175" width="7" height="7"/><rect x="480" y="200" width="7" height="7"/>
+                                </g>
+                                <!-- Парапет крыши по диагонали -->
+                                <polygon points="0,330 600,385 600,400 0,400" fill="#060509"/>
+                                <line x1="0" y1="330" x2="600" y2="385" stroke="#a855f7" stroke-width="2" opacity="0.5"/>
+                                <!-- Силуэты команды с рюкзаками на крыше -->
+                                <g fill="#07060b">
+                                    <!-- Человек 1 -->
+                                    <circle cx="210" cy="242" r="10"/>
+                                    <rect x="198" y="254" width="24" height="45" rx="6"/>
+                                    <line x1="204" y1="299" x2="202" y2="345" stroke="#07060b" stroke-width="7"/>
+                                    <line x1="216" y1="299" x2="218" y2="346" stroke="#07060b" stroke-width="7"/>
+                                    <!-- Человек 2 -->
+                                    <circle cx="265" cy="232" r="11"/>
+                                    <rect x="251" y="245" width="28" height="50" rx="7"/>
+                                    <line x1="258" y1="295" x2="256" y2="350" stroke="#07060b" stroke-width="8"/>
+                                    <line x1="272" y1="295" x2="274" y2="352" stroke="#07060b" stroke-width="8"/>
+                                    <!-- Человек 3 -->
+                                    <circle cx="325" cy="236" r="11"/>
+                                    <rect x="311" y="249" width="28" height="50" rx="7"/>
+                                    <line x1="318" y1="299" x2="316" y2="356" stroke="#07060b" stroke-width="8"/>
+                                    <line x1="332" y1="299" x2="334" y2="358" stroke="#07060b" stroke-width="8"/>
+                                    <!-- Человек 4 -->
+                                    <circle cx="385" cy="242" r="10"/>
+                                    <rect x="372" y="254" width="26" height="48" rx="6"/>
+                                    <line x1="378" y1="302" x2="376" y2="362" stroke="#07060b" stroke-width="7"/>
+                                    <line x1="391" y1="302" x2="393" y2="364" stroke="#07060b" stroke-width="7"/>
+                                </g>
+                            </svg>
+
+                            <!-- Надпись Quest_game с короной сверху как на фотографии -->
+                            <div class="relative z-10 text-center pt-4">
+                                <svg class="w-9 h-9 text-white/80 mx-auto -mb-1" viewBox="0 0 40 32" fill="none" stroke="currentColor" stroke-width="2.2">
+                                    <path d="M4 26L8 8L16 18L22 6L28 18L36 8L34 26H4Z"/>
+                                </svg>
+                                <span class="poster-brand text-4xl sm:text-5xl text-white/80 tracking-wider drop-shadow-lg">
+                                    Quest_game
+                                </span>
+                            </div>
+
+                            <!-- Нижняя плашка поверх фото -->
+                            <div class="relative z-10 flex items-center justify-between bg-urban-950/85 backdrop-blur-md px-4 py-3 rounded-xl border border-white/15 text-xs text-gray-300">
+                                <span>🏙 Город — наша игровая площадка</span>
+                                <span class="font-mono text-neon-glow">@quest_gamenews</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <!-- БЛОК 6: "ХВАТИТ ПРОСТО СМОТРЕТЬ. ПОРА ИГРАТЬ." (ФИНАЛЬНЫЙ ПРИЗЫВ С 5-ГО КАДРА ПОСТЕРА + ССЫЛКИ) -->
+    <section class="py-20 lg:py-28 relative overflow-hidden">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+                <!-- Левая часть: Заголовок и 4 иконки преимуществ с постера -->
+                <div class="lg:col-span-7 space-y-8">
+                    <div class="space-y-2">
+                        <h2 class="poster-title text-4xl sm:text-6xl text-white leading-[1.05]">
+                            ХВАТИТ ПРОСТО <br>
+                            СМОТРЕТЬ. <br>
+                            <span class="text-neon-violet neon-text-glow">ПОРА ИГРАТЬ.</span>
+                        </h2>
+                    </div>
+
+                    <!-- 4 пункта с иконками пина, пазла и звезды точь-в-точь как на 5-м кадре -->
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div class="torn-card p-4 rounded-2xl flex items-center gap-4">
+                            <div class="w-11 h-11 rounded-xl bg-neon-purple/20 border border-neon-violet flex items-center justify-center text-white shrink-0">
+                                <!-- Иконка гео-пина -->
+                                <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
+                                    <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5a2.5 2.5 0 010-5 2.5 2.5 0 010 5z"/>
+                                </svg>
+                            </div>
+                            <span class="font-bold text-white text-base">Интересные задания</span>
+                        </div>
+
+                        <div class="torn-card p-4 rounded-2xl flex items-center gap-4">
+                            <div class="w-11 h-11 rounded-xl bg-neon-purple/20 border border-neon-violet flex items-center justify-center text-white shrink-0">
+                                <!-- Иконка пазла -->
+                                <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
+                                    <path d="M20.5 11H19V7c0-1.1-.9-2-2-2h-4V3.5C13 2.12 11.88 1 10.5 1S8 2.12 8 3.5V5H4c-1.1 0-1.99.9-1.99 2v3.8H3.5c1.49 0 2.7 1.21 2.7 2.7s-1.21 2.7-2.7 2.7H2V20c0 1.1.9 2 2 2h3.8v-1.5c0-1.49 1.21-2.7 2.7-2.7 1.49 0 2.7 1.21 2.7 2.7V22H17c1.1 0 2-.9 2-2v-4h1.5c1.38 0 2.5-1.12 2.5-2.5S21.88 11 20.5 11z"/>
+                                </svg>
+                            </div>
+                            <span class="font-bold text-white text-base">Исследование реальных локаций</span>
+                        </div>
+
+                        <div class="torn-card p-4 rounded-2xl flex items-center gap-4">
+                            <div class="w-11 h-11 rounded-xl bg-neon-purple/20 border border-neon-violet flex items-center justify-center text-white shrink-0">
+                                <!-- Иконка звезды -->
+                                <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
+                                    <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/>
+                                </svg>
+                            </div>
+                            <span class="font-bold text-white text-base">Загадки и испытания</span>
+                        </div>
+
+                        <div class="torn-card p-4 rounded-2xl flex items-center gap-4">
+                            <div class="w-11 h-11 rounded-xl bg-neon-purple/20 border border-neon-violet flex items-center justify-center text-white shrink-0">
+                                <!-- Иконка впечатлений / пазла -->
+                                <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
+                                    <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z"/>
+                                </svg>
+                            </div>
+                            <span class="font-bold text-white text-base">Новые впечатления</span>
+                        </div>
+                    </div>
+
+                    <!-- Фиолетовая плашка-призыв с постера -->
+                    <div class="pt-2">
+                        <a href="https://t.me/psuquestbot" target="_blank" rel="noopener noreferrer"
+                           class="brush-purple inline-block px-8 py-4 shadow-2xl hover:scale-[1.02] transition-transform">
+                            <span class="block font-extrabold text-lg sm:text-xl text-white">
+                                Переходи в нашего бота и попробуй свой первый квест!
+                            </span>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Правая часть: 2 крупные карточки прямого перехода (Бот @psuquestbot + Канал @quest_gamenews) -->
+                <div class="lg:col-span-5 space-y-5">
+                    
+                    <!-- Карточка 1: Telegram-бот @psuquestbot -->
+                    <div class="torn-card rounded-3xl p-6 sm:p-7 border-2 border-neon-violet neon-box-glow relative overflow-hidden">
+                        <div class="flex items-start justify-between gap-4">
+                            <div>
+                                <span class="text-xs font-mono uppercase tracking-widest text-neon-glow">🎮 ИГРОВОЙ TELEGRAM-БОТ</span>
+                                <h3 class="poster-brand text-2xl sm:text-3xl text-white mt-1">@psuquestbot</h3>
+                            </div>
+                            <span class="w-12 h-12 rounded-2xl bg-neon-purple flex items-center justify-center text-white shrink-0 shadow-lg">
+                                <svg class="w-7 h-7" fill="currentColor" viewBox="0 0 24 24">
+                                    <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/>
+                                </svg>
+                            </span>
+                        </div>
+                        <p class="text-sm text-gray-300 mt-3">
+                            Запускай бота, выбирай доступное задание из списка, отправляй отчёт и забирай свои первые баллы в рейтинг!
+                        </p>
+                        <div class="mt-5 flex items-center gap-3">
+                            <a href="https://t.me/psuquestbot" target="_blank" rel="noopener noreferrer"
+                               class="flex-1 py-3.5 px-5 rounded-xl bg-neon-purple hover:bg-neon-violet text-white font-extrabold text-sm text-center transition-all">
+                                🚀 Запустить @psuquestbot
+                            </a>
+                            <button onclick="copyText('https://t.me/psuquestbot', 'Ссылка на бота @psuquestbot скопирована!')"
+                                    title="Скопировать ссылку"
+                                    class="p-3.5 rounded-xl bg-white/5 hover:bg-white/15 border border-white/15 text-white transition-all">
+                                📋
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Карточка 2: Telegram-канал @quest_gamenews -->
+                    <div class="torn-card rounded-3xl p-6 sm:p-7 border border-white/20 hover:border-neon-violet transition-all relative overflow-hidden">
+                        <div class="flex items-start justify-between gap-4">
+                            <div>
+                                <span class="text-xs font-mono uppercase tracking-widest text-gray-400">📢 ОФИЦИАЛЬНЫЙ ТГ-КАНАЛ</span>
+                                <h3 class="poster-brand text-2xl sm:text-3xl text-white mt-1">@quest_gamenews</h3>
+                            </div>
+                            <span class="w-12 h-12 rounded-2xl bg-white/10 border border-white/15 flex items-center justify-center text-neon-glow shrink-0">
+                                <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
+                                    <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm4.64 6.8c-.15 1.58-.8 5.42-1.13 7.19-.14.75-.42 1-.68 1.03-.58.05-1.02-.38-1.58-.75-.88-.58-1.38-.94-2.23-1.5-.99-.65-.35-1.01.22-1.59.15-.15 2.71-2.48 2.76-2.69a.2.2 0 00-.05-.18c-.06-.05-.14-.03-.21-.02-.09.02-1.49.95-4.22 2.79-.4.27-.76.41-1.08.4-.36-.01-1.04-.2-1.55-.37-.63-.2-1.12-.31-1.08-.66.02-.18.27-.36.74-.55 2.92-1.27 4.86-2.11 5.83-2.51 2.78-1.16 3.35-1.36 3.73-1.36.08 0 .27.02.39.12.1.08.13.19.14.27-.01.06.01.24 0 .38z"/>
+                                </svg>
+                            </span>
+                        </div>
+                        <p class="text-sm text-gray-300 mt-3">
+                            Все новости проекта, анонсы свежих городских квестов, подсказки, итоги сезонов и отчёты лучших игроков!
+                        </p>
+                        <div class="mt-5 flex items-center gap-3">
+                            <a href="https://t.me/quest_gamenews" target="_blank" rel="noopener noreferrer"
+                               class="flex-1 py-3.5 px-5 rounded-xl bg-white text-urban-950 hover:bg-neon-glow hover:text-urban-950 font-extrabold text-sm text-center transition-all">
+                                📰 Подписаться на ТГК
+                            </a>
+                            <button onclick="copyText('https://t.me/quest_gamenews', 'Ссылка на канал https://t.me/quest_gamenews скопирована!')"
+                                    title="Скопировать ссылку"
+                                    class="p-3.5 rounded-xl bg-white/5 hover:bg-white/15 border border-white/15 text-white transition-all">
+                                📋
+                            </button>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+        </div>
+    </section>
+
+    <!-- ПОДВАЛ САЙТА (FOOTER) -->
+    <footer class="border-t border-white/10 bg-urban-950 py-10">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-6">
+            <div class="flex items-center gap-3">
+                <span class="poster-brand text-2xl text-neon-violet">Quest_game</span>
+                <span class="text-xs text-gray-500">| Реальность не найдена. Приключение началось.</span>
+            </div>
+
+            <div class="flex flex-wrap items-center gap-5 text-sm font-semibold">
+                <a href="https://t.me/psuquestbot" target="_blank" rel="noopener noreferrer" class="text-gray-300 hover:text-neon-glow transition-colors">
+                    🤖 Бот: @psuquestbot
+                </a>
+                <a href="https://t.me/quest_gamenews" target="_blank" rel="noopener noreferrer" class="text-gray-300 hover:text-neon-glow transition-colors">
+                    📢 Канал: t.me/quest_gamenews
+                </a>
+            </div>
+        </div>
+    </footer>
+
+    <!-- СКРИПТЫ ИНТЕРАКТИВНОСТИ -->
+    <script>
+        // 1. Функция копирования в буфер обмена + показ кастомного уведомления
+        function copyText(text, customMessage) {
+            const tempInput = document.createElement('textarea');
+            tempInput.value = text;
+            document.body.appendChild(tempInput);
+            tempInput.select();
+            document.execCommand('copy');
+            document.body.removeChild(tempInput);
+
+            const toast = document.getElementById('toast');
+            const toastDesc = document.getElementById('toast-desc');
+            toastDesc.textContent = customMessage || (text + ' скопировано');
+
+            toast.classList.remove('translate-y-24', 'opacity-0');
+            setTimeout(() => {
+                toast.classList.add('translate-y-24', 'opacity-0');
+            }, 3000);
+        }
+
+        // 2. Интерактивный чек-лист "5 способов разнообразить прогулку"
+        function updateChecklist() {
+            const items = document.querySelectorAll('#walk-checklist .walk-item');
+            let checkedCount = 0;
+
+            items.forEach(item => {
+                const input = item.querySelector('input[type="checkbox"]');
+                const circle = item.querySelector('.check-circle');
+                const text = item.querySelector('span:last-child');
+
+                if (input.checked) {
+                    checkedCount++;
+                    circle.className = 'check-circle w-8 h-8 rounded-full border-2 border-neon-violet bg-neon-purple/30 flex items-center justify-center text-white shrink-0 transition-all shadow-[0_0_10px_rgba(168,85,247,0.5)]';
+                    text.className = 'text-base sm:text-lg font-semibold text-white';
+                } else {
+                    circle.className = 'check-circle w-8 h-8 rounded-full border-2 border-gray-500 bg-transparent flex items-center justify-center text-transparent shrink-0 transition-all';
+                    text.className = 'text-base sm:text-lg font-medium text-gray-300';
+                }
+            });
+
+            const percent = (checkedCount / 5) * 100;
+            const xp = checkedCount * 20;
+            document.getElementById('checklist-bar').style.width = percent + '%';
+            document.getElementById('checklist-score').textContent = 
+                checkedCount === 5 
+                ? '🔥 5 / 5 ВЫПОЛНЕНО! (100 XP — Ты готов к квесту!)' 
+                : `${checkedCount} / 5 выполнено (+${xp} XP)`;
+        }
+
+        // 3. Интерактивный симулятор разделов бота @psuquestbot
+        const simData = {
+            quests: `
+                <div class="space-y-3">
+                    <div class="text-xs font-mono text-gray-400">📚 Доступные задания и квесты (🟢 — доступно | ⏳ — на проверке | ✅ — выполнено):</div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                        <div class="p-4 rounded-2xl bg-urban-950 border border-neon-purple/50 space-y-2">
+                            <div class="flex justify-between items-center">
+                                <span class="font-bold text-white text-sm">🟢 #1 Тайна старого фасада</span>
+                                <span class="font-mono text-xs bg-neon-purple/30 text-neon-glow px-2 py-0.5 rounded">+50 б.</span>
+                            </div>
+                            <p class="text-xs text-gray-300">Найди необычный барельеф на главной улице, сфотографируй деталь и отправь в бота.</p>
+                            <div class="flex justify-between items-center pt-2 text-[11px] text-gray-400">
+                                <span>👥 Слоты: 2/5 чел.</span>
+                                <a href="https://t.me/psuquestbot" target="_blank" class="text-neon-glow font-bold hover:underline">📤 Отправить отчет →</a>
+                            </div>
+                        </div>
+                        <div class="p-4 rounded-2xl bg-urban-950 border border-white/10 space-y-2">
+                            <div class="flex justify-between items-center">
+                                <span class="font-bold text-white text-sm">🟢 #2 Ночной маршрут</span>
+                                <span class="font-mono text-xs bg-neon-purple/30 text-neon-glow px-2 py-0.5 rounded">+80 б.</span>
+                            </div>
+                            <p class="text-xs text-gray-300">Разгадай шифр из нашего канала @quest_gamenews и найди спрятанную локацию.</p>
+                            <div class="flex justify-between items-center pt-2 text-[11px] text-gray-400">
+                                <span>👥 Слоты: 4/5 чел. (Последнее место!)</span>
+                                <a href="https://t.me/psuquestbot" target="_blank" class="text-neon-glow font-bold hover:underline">📤 Отправить отчет →</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `,
+            leaders: `
+                <div class="p-4 rounded-2xl bg-urban-950 border border-white/10 space-y-2.5 text-sm">
+                    <div class="font-bold text-white mb-2">🏆 ТОП студентов и игроков по баллам:</div>
+                    <div class="flex justify-between items-center py-1.5 border-b border-white/5">
+                        <span>🥇 <b>Алексей К.</b> <span class="text-xs text-gray-400">(@alex_urb)</span></span>
+                        <span class="font-mono text-neon-glow font-bold">420 б. <span class="text-xs text-gray-400 font-normal">(выполнено: 7)</span></span>
+                    </div>
+                    <div class="flex justify-between items-center py-1.5 border-b border-white/5">
+                        <span>🥈 <b>Мария С.</b> <span class="text-xs text-gray-400">(@masha_quest)</span></span>
+                        <span class="font-mono text-neon-glow font-bold">365 б. <span class="text-xs text-gray-400 font-normal">(выполнено: 6)</span></span>
+                    </div>
+                    <div class="flex justify-between items-center py-1.5 border-b border-white/5">
+                        <span>🥉 <b>Дмитрий В.</b> <span class="text-xs text-gray-400">(@dmitry_v)</span></span>
+                        <span class="font-mono text-neon-glow font-bold">290 б. <span class="text-xs text-gray-400 font-normal">(выполнено: 5)</span></span>
+                    </div>
+                    <div class="pt-2 text-xs text-gray-300">
+                        📍 <b>Хочешь попасть в ТОП?</b> Переходи в <a href="https://t.me/psuquestbot" target="_blank" class="text-neon-glow underline">@psuquestbot</a> и забирай активные квесты!
+                    </div>
+                </div>
+            `,
+            stats: `
+                <div class="p-5 rounded-2xl bg-urban-950 border border-white/10 space-y-2 text-sm">
+                    <div class="font-bold text-white text-base mb-2">📊 Личная статистика игрока:</div>
+                    <div class="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                        <div class="p-3 rounded-xl bg-white/5 border border-white/10">
+                            <span class="text-xs text-gray-400 block">🏅 Место в рейтинге</span>
+                            <span class="font-mono text-lg font-bold text-neon-glow">#4</span>
+                        </div>
+                        <div class="p-3 rounded-xl bg-white/5 border border-white/10">
+                            <span class="text-xs text-gray-400 block">💎 Всего баллов</span>
+                            <span class="font-mono text-lg font-bold text-white">240 б.</span>
+                        </div>
+                        <div class="p-3 rounded-xl bg-white/5 border border-white/10">
+                            <span class="text-xs text-gray-400 block">✅ Выполнено квестов</span>
+                            <span class="font-mono text-lg font-bold text-emerald-400">4</span>
+                        </div>
+                    </div>
+                </div>
+            `,
+            support: `
+                <div class="p-5 rounded-2xl bg-urban-950 border border-white/10 space-y-3 text-sm">
+                    <div class="font-bold text-white">✉️ Связь с администрацией прямо в боте:</div>
+                    <p class="text-xs text-gray-300">У тебя есть крутая идея для нового городского квеста, вопрос или репорт? Отправь тикет в один клик:</p>
+                    <div class="flex flex-wrap gap-2 pt-1">
+                        <a href="https://t.me/psuquestbot" target="_blank" class="px-3.5 py-2 rounded-xl bg-neon-purple/20 border border-neon-violet text-xs font-bold text-white hover:bg-neon-purple transition-all">💡 Предложить идею / квест</a>
+                        <a href="https://t.me/psuquestbot" target="_blank" class="px-3.5 py-2 rounded-xl bg-white/5 border border-white/15 text-xs font-bold text-gray-200 hover:border-neon-violet transition-all">❓ Вопрос администратору</a>
+                        <a href="https://t.me/psuquestbot" target="_blank" class="px-3.5 py-2 rounded-xl bg-white/5 border border-white/15 text-xs font-bold text-gray-200 hover:border-neon-violet transition-all">🚨 Жалоба / Репорт</a>
+                    </div>
+                </div>
+            `
+        };
+
+        function renderSimTab(tabKey) {
+            document.getElementById('sim-screen').innerHTML = simData[tabKey];
+            document.querySelectorAll('.sim-tab-btn').forEach(btn => {
+                btn.className = 'sim-tab-btn py-3 px-3 rounded-xl font-bold text-xs sm:text-sm border transition-all bg-urban-800 text-gray-200 border-white/10 hover:border-neon-violet';
+            });
+            const activeBtn = document.getElementById('tab-' + tabKey);
+            if (activeBtn) {
+                activeBtn.className = 'sim-tab-btn py-3 px-3 rounded-xl font-bold text-xs sm:text-sm border transition-all bg-neon-purple text-white border-neon-glow shadow-lg shadow-neon-purple/30';
+            }
+        }
+
+        // Инициализация при загрузке
+        window.onload = function() {
+            renderSimTab('quests');
+            updateChecklist();
+        };
+    </script>
+</body>
+</html>
